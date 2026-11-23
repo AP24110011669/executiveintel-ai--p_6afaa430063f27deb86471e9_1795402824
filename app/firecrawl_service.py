@@ -1,3 +1,4 @@
+
 import os
 import requests
 from dotenv import load_dotenv
@@ -28,24 +29,33 @@ def search_business_information(topic, company):
             url,
             headers=headers,
             json=payload,
-            timeout=150
+            timeout=(10, 30)
         )
 
         response.raise_for_status()
         result = response.json()
 
-        articles = result.get("data", {}).get("web", [])
+        data = result.get("data", {})
+        articles = data.get("web", []) if isinstance(data, dict) else []
 
         information = []
 
         for article in articles:
             information.append({
-                "title": article.get("title", "Untitled"),
-                "url": article.get("url", ""),
-                "content": article.get("description", "")
+                "title": article.get("title") or "Untitled",
+                "url": article.get("url") or "",
+                "content": article.get("description") or ""
             })
 
         return information
 
+    except requests.Timeout:
+        raise Exception(
+            "Firecrawl took too long to respond. Please try again."
+        )
+
     except requests.RequestException as error:
         raise Exception(f"Firecrawl error: {error}")
+
+    except ValueError as error:
+        raise Exception(f"Invalid Firecrawl response: {error}")

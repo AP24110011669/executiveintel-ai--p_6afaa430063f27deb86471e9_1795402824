@@ -1,3 +1,4 @@
+
 fastapi
 uvicorn
 python-dotenv
@@ -7,3 +8,4 @@ jinja2
 python-multipart
 google-genai
 firecrawl-py
+memento-memory[gemini,local-embeddings]

@@ -12,7 +12,8 @@ from app.memory_service import (
     save_preferences,
     get_preferences,
     save_briefing_history,
-    get_briefing_history
+    get_briefing_history,
+    recall_executive_memory
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -29,9 +30,7 @@ app.mount(
     name="static"
 )
 
-templates = Jinja2Templates(
-    directory=BASE_DIR / "templates"
-)
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 
 class BriefingRequest(BaseModel):
@@ -45,9 +44,7 @@ async def home(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "preferences": get_preferences()
-        }
+        context={"preferences": get_preferences()}
     )
 
 
@@ -70,12 +67,15 @@ async def api_home():
 
 @app.post("/api/briefing")
 def create_briefing(request: BriefingRequest):
-
     try:
+        print("STEP 1: Briefing request received", flush=True)
+
+        print("STEP 2: Connecting to Firecrawl...", flush=True)
         articles = search_business_information(
             request.topic,
             request.company
         )
+        print(f"STEP 3: Firecrawl returned {len(articles)} articles", flush=True)
 
         if not articles:
             raise HTTPException(
@@ -83,12 +83,22 @@ def create_briefing(request: BriefingRequest):
                 detail="No relevant business information found."
             )
 
+        print("STEP 4: Retrieving Memento memory...", flush=True)
+        memory_context = recall_executive_memory(
+            f"Executive preferences and previous briefings about "
+            f"{request.topic} and {request.company}"
+        )
+        print("STEP 5: Memory retrieval completed", flush=True)
+
+        print("STEP 6: Generating Gemini briefing...", flush=True)
         briefing = generate_briefing(
             request.topic,
             request.company,
             request.format,
-            articles
+            articles,
+            memory_context
         )
+        print("STEP 7: Gemini briefing generated", flush=True)
 
         save_preferences(
             request.topic,
@@ -110,6 +120,8 @@ def create_briefing(request: BriefingRequest):
             ]
         })
 
+        print("STEP 8: Briefing saved successfully", flush=True)
+
         return {
             "status": "success",
             "briefing": briefing,
@@ -126,6 +138,7 @@ def create_briefing(request: BriefingRequest):
         raise
 
     except Exception as error:
+        print(f"BRIEFING ERROR: {error}", flush=True)
         raise HTTPException(
             status_code=500,
             detail=str(error)
