@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExecutiveIntel AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">✦</span>
+            <div>
+                <h2>ExecutiveIntel</h2>
+                <small>AI INTELLIGENCE</small>
+            </div>
+        </div>
+
+        <nav>
+            <a class="active" href="/">◫ &nbsp; Dashboard</a>
+            <a href="#briefing">▤ &nbsp; Briefings</a>
+            <a href="#history">◷ &nbsp; History</a>
+            <a href="#preferences">⚙ &nbsp; Preferences</a>
+            <a href="#about">ⓘ &nbsp; About</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <span class="status-dot"></span>
+            System ready
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">EXECUTIVE INTELLIGENCE PLATFORM</p>
+                <h1>Good morning, Executive.</h1>
+                <p class="subtitle">Your business intelligence, all in one place.</p>
+            </div>
+            <div class="profile">EI</div>
+        </header>
+
+        <section class="welcome-card">
+            <div>
+                <p class="eyebrow">YOUR INTELLIGENCE HUB</p>
+                <h2>Stay informed. Think ahead.</h2>
+                <p>
+                    Discover important business developments,
+                    industry trends and competitive insights.
+                </p>
+                <a href="#briefing" class="primary-button">
+                    Explore Briefings →
+                </a>
+            </div>
+            <div class="welcome-symbol">✧</div>
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <div>
+                    <h2>Intelligence Overview</h2>
+                    <p>Monitor the information that matters.</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span>◉</span>
+                    <h3>Company Updates</h3>
+                    <p>Business developments</p>
+                </div>
+
+                <div class="stat-card">
+                    <span>↗</span>
+                    <h3>Market Trends</h3>
+                    <p>Industry movements</p>
+                </div>
+
+                <div class="stat-card">
+                    <span>◎</span>
+                    <h3>Competitor Insights</h3>
+                    <p>Competitive intelligence</p>
+                </div>
+
+                <div class="stat-card">
+                    <span>✦</span>
+                    <h3>AI Briefings</h3>
+                    <p>Personalized summaries</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="briefing">
+            <div class="section-heading">
+                <div>
+                    <h2>Generate Your Briefing</h2>
+                    <p>Choose what you want to know about.</p>
+                </div>
+            </div>
+
+            <div class="briefing-card">
+                <form id="briefing-form">
+
+                    <label for="topic">Intelligence Category</label>
+                    <select id="topic" required>
+                        <option value="">Select a category</option>
+                        <option>Company Updates</option>
+                        <option>Competitor Analysis</option>
+                        <option>Market Trends</option>
+                        <option>Technology Trends</option>
+                        <option>Financial News</option>
+                        <option>Industry News</option>
+                    </select>
+
+                    <label for="company">Company or Industry</label>
+                    <input
+                        id="company"
+                        type="text"
+                        placeholder="e.g. Microsoft, healthcare, technology"
+                        required
+                    >
+
+                    <label for="format">Briefing Format</label>
+                    <select id="format">
+                        <option>Executive Summary</option>
+                        <option>Detailed Analysis</option>
+                        <option>Key Highlights</option>
+                    </select>
+
+                    <button type="submit" id="generate-btn">
+                        Generate Intelligence →
+                    </button>
+                </form>
+
+                <div id="result" class="result">
+                    Your personalized briefing will appear here.
+                </div>
+                <div id="result-sources"></div>
+            </div>
+        </section>
+
+        <section class="section" id="history">
+            <div class="section-heading">
+                <div>
+                    <h2>Briefing History</h2>
+                    <p>Revisit your previously generated intelligence reports.</p>
+                </div>
+                <button type="button" id="refresh-history">
+                    Refresh History ↻
+                </button>
+            </div>
+
+            <div id="history-list" class="preference-card">
+                Loading briefing history...
+            </div>
+        </section>
+
+        <section class="section" id="preferences">
+            <div class="section-heading">
+                <div>
+                    <h2>Executive Preferences</h2>
+                    <p>Your saved intelligence preferences.</p>
+                </div>
+            </div>
+            <div class="preference-card" id="preference-content">
+                Loading preferences...
+            </div>
+        </section>
+
+        <footer id="about">
+            ExecutiveIntel AI · Intelligent decisions begin with information.
+        </footer>
+
+    </main>
+
+    <script>
+        const result = document.getElementById("result");
+        const button = document.getElementById("generate-btn");
+
+        function displaySources(container, sources) {
+            container.replaceChildren();
+
+            if (!sources || sources.length === 0) return;
+
+            const heading = document.createElement("h3");
+            heading.textContent = "Sources";
+            container.appendChild(heading);
+
+            sources.forEach(source => {
+                const link = document.createElement("a");
+
+                try {
+                    const url = new URL(source.url);
+
+                    if (url.protocol !== "https:" && url.protocol !== "http:") {
+                        return;
+                    }
+
+                    link.href = url.href;
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    link.textContent = source.title || source.url;
+
+                    container.appendChild(link);
+                    container.appendChild(document.createElement("br"));
+                } catch {
+                    return;
+                }
+            });
+        }
+
+        document.getElementById("briefing-form").addEventListener(
+            "submit",
+            async function(event) {
+                event.preventDefault();
+
+                result.textContent = "Preparing your briefing...";
+                button.disabled = true;
+
+                document.getElementById("result-sources").replaceChildren();
+
+                try {
+                    const response = await fetch("/api/briefing", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            topic: document.getElementById("topic").value,
+                            company: document.getElementById("company").value,
+                            format: document.getElementById("format").value
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.detail || "Request failed");
+                    }
+
+                    result.textContent = data.briefing;
+
+                    displaySources(
+                        document.getElementById("result-sources"),
+                        data.sources
+                    );
+
+                    await loadHistory();
+
+                } catch (error) {
+                    result.textContent =
+                        "Unable to generate briefing: " + error.message;
+                } finally {
+                    button.disabled = false;
+                }
+            }
+        );
+
+        async function loadHistory() {
+            const historyList = document.getElementById("history-list");
+
+            historyList.textContent = "Loading briefing history...";
+
+            try {
+                const response = await fetch("/api/history");
+
+                if (!response.ok) {
+                    throw new Error("Unable to load history.");
+                }
+
+                const history = await response.json();
+
+                historyList.replaceChildren();
+
+                if (!history.length) {
+                    historyList.textContent =
+                        "No briefings saved yet. Generate your first briefing!";
+                    return;
+                }
+
+                history.slice().reverse().forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "history-item";
+
+                    const title = document.createElement("h3");
+                    title.textContent =
+                        item.company + " - " + item.topic;
+
+                    const details = document.createElement("p");
+                    details.textContent =
+                        "Format: " + item.format;
+
+                    const content = document.createElement("p");
+                    content.textContent = item.briefing;
+
+                    const sources = document.createElement("div");
+                    displaySources(sources, item.sources);
+
+                    card.appendChild(title);
+                    card.appendChild(details);
+                    card.appendChild(content);
+                    card.appendChild(sources);
+
+                    historyList.appendChild(card);
+                });
+
+            } catch (error) {
+                historyList.textContent = error.message;
+            }
+        }
+
+        async function loadPreferences() {
+            const container =
+                document.getElementById("preference-content");
+
+            try {
+                const response = await fetch("/api/preferences");
+
+                if (!response.ok) {
+                    throw new Error("Unable to load preferences.");
+                }
+
+                const preferences = await response.json();
+
+                container.replaceChildren();
+
+                if (!Object.keys(preferences).length) {
+                    container.textContent =
+                        "No preferences saved yet. Generate a briefing to save your interests.";
+                    return;
+                }
+
+                Object.entries(preferences).forEach(([key, value]) => {
+                    const line = document.createElement("p");
+                    line.textContent = key + ": " + value;
+                    container.appendChild(line);
+                });
+
+            } catch (error) {
+                container.textContent = error.message;
+            }
+        }
+
+        document.getElementById("refresh-history").addEventListener(
+            "click",
+            loadHistory
+        );
+
+        loadHistory();
+        loadPreferences();
+    </script>
+
+</body>
+</html>
